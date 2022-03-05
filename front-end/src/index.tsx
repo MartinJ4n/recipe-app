@@ -1,17 +1,22 @@
-import React from "react";
+import { StrictMode } from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter } from "react-router-dom";
+import { Provider } from "react-redux";
+import { store } from "./store/store";
 import reportWebVitals from "./reportWebVitals";
+
 import App from "./App";
 import "./index.css";
 import "../node_modules/modern-normalize/modern-normalize.css";
 
 ReactDOM.render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </React.StrictMode>,
+  <StrictMode>
+    <Provider store={store}>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </Provider>
+  </StrictMode>,
   document.getElementById("root")
 );
 
