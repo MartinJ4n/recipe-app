@@ -40,7 +40,7 @@ export default class StorageStack extends Stack {
         userId: STRING,
         recipeId: STRING,
       },
-      primaryIndex: { partitionKey: "recipeId", sortKey: "noteId" },
+      primaryIndex: { partitionKey: "userId", sortKey: "recipeId" },
     });
   }
 }
