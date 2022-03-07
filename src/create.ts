@@ -7,7 +7,7 @@ export interface CreateParams {
   TableName: string;
   Item: {
     userId: string;
-    noteId: string;
+    recipeId: string;
     content: string;
     attachment: string;
     createdAt: number;
@@ -32,7 +32,7 @@ export const main = handler(
       Item: {
         // The attributes of the item to be created
         userId: event.requestContext.authorizer.iam.cognitoIdentity.identityId, // The id of the author
-        noteId: uuid.v1(), // A unique uuid
+        recipeId: uuid.v1(), // A unique uuid
         content: data.content, // Parsed from request body
         attachment: data.attachment, // Parsed from request body
         createdAt: Date.now(), // Current Unix timestamp

@@ -30,12 +30,11 @@ export default class ApiStack extends Stack {
       },
 
       routes: {
-        "GET    /notes": "src/list.main",
-        "GET    /notes/{id}": "src/get.main",
-        "POST   /notes": "src/create.main",
-        "PUT    /notes/{id}": "src/update.main",
-        "DELETE /notes/{id}": "src/delete.main",
-        "POST   /billing": "src/billing.main",
+        "GET    /recipes": "src/list.main",
+        "GET    /recipes/{id}": "src/get.main",
+        "POST   /recipes": "src/create.main",
+        "PUT    /recipes/{id}": "src/update.main",
+        "DELETE /recipes/{id}": "src/delete.main",
       },
     });
 

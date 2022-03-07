@@ -6,7 +6,7 @@ export interface DeleteParams {
   TableName: string;
   Key: {
     userId: string;
-    noteId: string;
+    recipeId: string;
   };
 }
 
@@ -27,7 +27,7 @@ export const main = handler(
       // 'Key' defines the partition key and sort key of the item to be removed
       Key: {
         userId: event.requestContext.authorizer.iam.cognitoIdentity.identityId, // The id of the author
-        noteId: event.pathParameters!.id!, // The id of the note from the path
+        recipeId: event.pathParameters!.id!, // The id of the recipe from the path
       },
     };
     await dynamoDb.delete(params);

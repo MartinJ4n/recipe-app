@@ -35,12 +35,12 @@ export default class StorageStack extends Stack {
     });
 
     // Create the DynamoDB table
-    this.table = new Table(this, "Notes", {
+    this.table = new Table(this, "Recipes", {
       fields: {
         userId: STRING,
-        noteId: STRING,
+        recipeId: STRING,
       },
-      primaryIndex: { partitionKey: "userId", sortKey: "noteId" },
+      primaryIndex: { partitionKey: "userId", sortKey: "recipeId" },
     });
   }
 }

@@ -6,7 +6,7 @@ export interface UpdateParams {
   TableName: string;
   Key: {
     userId: string;
-    noteId: string;
+    recipeId: string;
   };
   UpdateExpression: string;
   ExpressionAttributeValues: {
@@ -34,7 +34,7 @@ export const main = handler(
       // 'Key' defines the partition key and sort key of the item to be updated
       Key: {
         userId: event.requestContext.authorizer.iam.cognitoIdentity.identityId, // The id of the author
-        noteId: event.pathParameters!.id!, // The id of the note from the path
+        recipeId: event.pathParameters!.id!, // The id of the recipe from the path
       },
       // 'UpdateExpression' defines the attributes to be updated
       // 'ExpressionAttributeValues' defines the value in the update expression
