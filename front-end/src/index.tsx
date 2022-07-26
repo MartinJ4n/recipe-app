@@ -12,6 +12,10 @@ import "./index.css";
 import "../node_modules/modern-normalize/modern-normalize.css";
 import "react-toastify/dist/ReactToastify.css";
 
+/**
+ * Setting the various AWS resources that we want to interact with.
+ * Read more: https://sst.dev/chapters/configure-aws-amplify.html
+ */
 Amplify.configure({
   Auth: {
     mandatorySignIn: true,
