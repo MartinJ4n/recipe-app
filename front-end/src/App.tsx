@@ -9,6 +9,7 @@ import {
   terminateAuth,
   cleanLoading,
 } from "./store/slices/auth";
+import useMediaQuery from "./utils/useMediaQuery";
 
 // Components
 import { AuthenticatedRoute, UnauthenticatedRoute } from "./components/Routes";
@@ -18,10 +19,12 @@ import Loader from "./components/Loader";
 import Authorization from "./screens/Authorization";
 import Home from "./screens/Home";
 import NotFound from "./screens/NotFound";
+import DesktopNotSupported from "./screens/DesktopNotSupported";
 
 const App = () => {
   const dispatch = useAppDispatch();
   const { loading } = useAppSelector((state) => state.events.auth);
+  const isDesktop = useMediaQuery("(min-width: 960px)");
 
   const handleSessionVerification = async () => {
     dispatch(authorizationInitialized());
@@ -48,6 +51,7 @@ const App = () => {
     handleSessionVerification();
   }, []);
 
+  if (isDesktop) return <DesktopNotSupported />;
   return (
     <>
       <Loader isVisible={loading} />
