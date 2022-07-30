@@ -127,7 +127,6 @@ const Authorization: FC = (): ReactElement => {
             password: signUpState.password,
           });
           setNewUser(newUser);
-          dispatch(clearCredentials());
           dispatch(cleanLoading());
         } catch (e: unknown) {
           if (e instanceof Error) {
@@ -167,6 +166,7 @@ const Authorization: FC = (): ReactElement => {
       await Auth.signIn(signUpState.email, signUpState.password);
 
       dispatch(accomplishAuth());
+      dispatch(clearCredentials());
     } catch (e: unknown) {
       if (e instanceof Error) {
         toast(e.message);
