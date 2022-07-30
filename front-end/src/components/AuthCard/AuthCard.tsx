@@ -59,6 +59,7 @@ const AuthCard: FC<AuthCardProps> = ({
               category={inputCategories.signUpEmail}
               placeholder="Email"
               onChange={onChange}
+              onKeyPress={(e) => e.key === "Enter" && onSubmit(signUp)}
             />
             <Input
               value={signUpState.password}
@@ -67,6 +68,7 @@ const AuthCard: FC<AuthCardProps> = ({
               category={inputCategories.signUpPassword}
               placeholder="Password"
               onChange={onChange}
+              onKeyPress={(e) => e.key === "Enter" && onSubmit(signUp)}
             />
             <Input
               value={signUpState.repeatPassword}
@@ -75,6 +77,7 @@ const AuthCard: FC<AuthCardProps> = ({
               category={inputCategories.signUpRepeatPassword}
               placeholder="Repeat Password"
               onChange={onChange}
+              onKeyPress={(e) => e.key === "Enter" && onSubmit(signUp)}
             />
             <SumbmitButton onClick={() => onSubmit(signUp)}>
               <p>Sign Up</p>
@@ -90,6 +93,7 @@ const AuthCard: FC<AuthCardProps> = ({
               category={inputCategories.signInEmail}
               placeholder="Email"
               onChange={onChange}
+              onKeyPress={(e) => e.key === "Enter" && onSubmit(signIn)}
             />
             <Input
               value={signInState.password}
@@ -98,6 +102,7 @@ const AuthCard: FC<AuthCardProps> = ({
               category={inputCategories.signInPassword}
               placeholder="Password"
               onChange={onChange}
+              onKeyPress={(e) => e.key === "Enter" && onSubmit(signIn)}
             />
             <SumbmitButton onClick={() => onSubmit(signIn)}>
               <p>Sign In</p>

@@ -30,6 +30,7 @@ const AuthConfirmation: FC<AuthConfirmationProps> = ({
           category={inputCategories.signUpVerificationCode}
           placeholder="Verification Code"
           onChange={onChange}
+          onKeyPress={(e) => e.key === "Enter" && onConfirmationSubmit()}
         />
         <SumbmitButton onClick={onConfirmationSubmit}>
           <p>Verify</p>

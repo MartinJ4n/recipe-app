@@ -38,12 +38,13 @@ export const MainContainer = styled.div`
   gap: 16px;
 `;
 
-export const SumbmitButton = styled.div`
+export const SumbmitButton = styled.button`
   width: 80%;
   height: 48px;
   background-color: black;
+  outline: none;
+  border: none;
   border-radius: 16px;
-  padding-left: 16px;
 
   & p {
     color: #ffffff;

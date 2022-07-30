@@ -1,4 +1,4 @@
-import { FC, ReactElement } from "react";
+import { FC, ReactElement, KeyboardEvent } from "react";
 
 import { Wrapper, InputSC } from "./styles";
 
@@ -13,6 +13,7 @@ interface InputProps {
   placeholder?: string;
   disabled?: boolean;
   onChange: (value: string, category: string) => void;
+  onKeyPress?: (e: KeyboardEvent) => void;
 }
 
 const Input: FC<InputProps> = ({
@@ -26,6 +27,7 @@ const Input: FC<InputProps> = ({
   placeholder = "...",
   disabled = false,
   onChange,
+  onKeyPress,
 }): ReactElement => {
   return (
     <Wrapper>
@@ -39,6 +41,7 @@ const Input: FC<InputProps> = ({
         placeholder={placeholder}
         disabled={disabled}
         onChange={(e) => onChange(e.target.value, category)}
+        onKeyPress={onKeyPress ? (e) => onKeyPress(e) : undefined}
       />
     </Wrapper>
   );
