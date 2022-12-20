@@ -1,56 +1,41 @@
-import { PolicyStatement, Effect } from "aws-cdk-lib/aws-iam";
-import {
-  Api,
-  App,
-  Stack,
-  StackProps,
-  Auth,
-  Bucket,
-} from "@serverless-stack/resources";
+import * as iam from "aws-cdk-lib/aws-iam";
+import { Cognito, use, StackContext } from "@serverless-stack/resources";
+import { StorageStack } from "./StorageStack";
+import { ApiStack } from "./ApiStack";
 
-interface AuthStackProps extends StackProps {
-  api: Api;
-  bucket: Bucket;
-}
+export function AuthStack({ stack, app }: StackContext) {
+  const { bucket } = use(StorageStack);
+  const { api } = use(ApiStack);
 
-export default class AuthStack extends Stack {
-  // Public reference to the auth instance
-  public readonly auth: Auth;
+  // Create a Cognito User Pool and Identity Pool
+  const auth = new Cognito(stack, "Auth", {
+    login: ["email"],
+  });
 
-  constructor(scope: App, id: string, props: AuthStackProps) {
-    super(scope, id, props);
+  auth.attachPermissionsForAuthUsers(stack, [
+    // Allow access to the API
+    api,
+    // Policy granting access to a specific folder in the bucket
+    //@ts-ignore
+    new iam.PolicyStatement({
+      actions: ["s3:*"],
+      effect: iam.Effect.ALLOW,
+      resources: [
+        bucket.bucketArn + "/private/${cognito-identity.amazonaws.com:sub}/*",
+      ],
+    }),
+  ]);
 
-    const { api, bucket } = props;
+  // Show the auth resources in the output
+  stack.addOutputs({
+    Region: app.region,
+    UserPoolId: auth.userPoolId,
+    IdentityPoolId: auth.cognitoIdentityPoolId!,
+    UserPoolClientId: auth.userPoolClientId,
+  });
 
-    // Create a Cognito User Pool and Identity Pool
-    this.auth = new Auth(this, "Auth", {
-      cognito: {
-        userPool: {
-          // Users can login with their email and password
-          signInAliases: { email: true },
-        },
-      },
-    });
-
-    this.auth.attachPermissionsForAuthUsers([
-      // Allow access to the API
-      api,
-      // Policy granting access to a specific folder in the bucket
-      new PolicyStatement({
-        actions: ["s3:*"],
-        effect: Effect.ALLOW,
-        resources: [
-          bucket.bucketArn + "/private/${cognito-identity.amazonaws.com:sub}/*",
-        ],
-      }),
-    ]);
-
-    // Show the auth resources in the output
-    this.addOutputs({
-      Region: scope.region,
-      UserPoolId: this.auth.cognitoUserPool!.userPoolId,
-      IdentityPoolId: this.auth.cognitoCfnIdentityPool!.ref,
-      UserPoolClientId: this.auth.cognitoUserPoolClient!.userPoolClientId,
-    });
-  }
+  // Return the auth resource
+  return {
+    auth,
+  };
 }

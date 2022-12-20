@@ -1,46 +1,19 @@
-import {
-  App,
-  Stack,
-  StackProps,
-  Table,
-  Bucket,
-  TableFieldType,
-} from "@serverless-stack/resources";
-import { HttpMethods } from "aws-cdk-lib/aws-s3";
+import { Bucket, Table, StackContext } from "@serverless-stack/resources";
 
-export default class StorageStack extends Stack {
-  // Public reference to the bucket & table
-  public readonly bucket: Bucket;
-  public readonly table: Table;
+export function StorageStack({ stack }: StackContext) {
+  // Create the S3 bucket
+  const bucket = new Bucket(stack, "Uploads");
+  // Create the DynamoDB table
+  const table = new Table(stack, "Recipes", {
+    fields: {
+      userId: "string",
+      recipeId: "string",
+    },
+    primaryIndex: { partitionKey: "userId", sortKey: "recipeId" },
+  });
 
-  constructor(scope: App, id: string, props?: StackProps) {
-    super(scope, id, props);
-
-    const { GET, POST, PUT, DELETE } = HttpMethods;
-    const { STRING } = TableFieldType;
-
-    // Create an S3 bucket
-    this.bucket = new Bucket(this, "Uploads", {
-      s3Bucket: {
-        // Allow client side access to the bucket from a different domain
-        cors: [
-          {
-            maxAge: 3000,
-            allowedOrigins: ["*"],
-            allowedHeaders: ["*"],
-            allowedMethods: [GET, POST, PUT, DELETE],
-          },
-        ],
-      },
-    });
-
-    // Create the DynamoDB table
-    this.table = new Table(this, "Recipes", {
-      fields: {
-        userId: STRING,
-        recipeId: STRING,
-      },
-      primaryIndex: { partitionKey: "userId", sortKey: "recipeId" },
-    });
-  }
+  return {
+    bucket,
+    table,
+  };
 }
