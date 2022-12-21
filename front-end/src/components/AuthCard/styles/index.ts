@@ -5,6 +5,7 @@ export const Wrapper = styled.div`
   height: 50vh;
   border: 1px solid black;
   border-radius: 16px;
+  position: relative;
 `;
 
 export const TabsContainer = styled.div`
@@ -48,6 +49,21 @@ export const SumbmitButton = styled.button`
 
   & p {
     color: #ffffff;
+    font-size: 14px;
+    letter-spacing: 0.03125em;
+  }
+`;
+
+export const DetailsBox = styled.div`
+  width: 90%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: absolute;
+  bottom: 16px;
+
+  p {
     font-size: 14px;
     letter-spacing: 0.03125em;
   }

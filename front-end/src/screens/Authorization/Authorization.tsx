@@ -29,18 +29,49 @@ import { Wrapper } from "./styles";
  */
 
 const Authorization: FC = (): ReactElement => {
-  const signUp = "signUp" as const;
-  const signIn = "signIn" as const;
+  const actions = {
+    signUp: "signUp",
+    signIn: "signIn",
+    resendVerificationCode: "resendVerificationCode",
+    forgotPassword: "forgotPassword",
+    resetPassword: "resetPassword",
+  };
+  const {
+    signUp,
+    signIn,
+    resendVerificationCode,
+    forgotPassword,
+    resetPassword,
+  } = actions;
+
   const [authSteps, setAuthStep] = useState([
     { name: "Sign Up", identity: signUp, selected: false },
     { name: "Sign In", identity: signIn, selected: true },
+    {
+      name: "Resend Verification Code",
+      identity: resendVerificationCode,
+      selected: false,
+    },
+    {
+      name: "Forgot Password",
+      identity: forgotPassword,
+      selected: false,
+    },
+    {
+      name: "Reset Password",
+      identity: resetPassword,
+      selected: false,
+    },
   ]);
   const [newUser, setNewUser] = useState<null | ISignUpResult>(null);
 
   const dispatch = useAppDispatch();
-  const { signUp: signUpState, signIn: signInState } = useAppSelector(
-    (state) => state.events.auth.credentials
-  );
+  const {
+    signUp: signUpState,
+    signIn: signInState,
+    resendVerificationCode: resendVerificationCodeState,
+    forgotPassword: forgotPasswordState,
+  } = useAppSelector((state) => state.events.auth.credentials);
 
   const inputCategories = {
     signUpEmail: "signUpEmail",
@@ -49,6 +80,11 @@ const Authorization: FC = (): ReactElement => {
     signUpVerificationCode: "signUpVerificationCode",
     signInEmail: "signInEmail",
     signInPassword: "signInPassword",
+    resendVerificationCodeEmail: "resendVerificationCodeEmail",
+    forgotPasswordEmail: "forgotPasswordEmail",
+    forgotPasswordVerificationCode: "forgotPasswordVerificationCode",
+    forgotPasswordPassword: "forgotPasswordPassword",
+    forgotPasswordRepeatPassword: "forgotPasswordRepeatPassword",
   };
   const selectedAuthStep = authSteps.find(
     ({ selected }) => selected === true
@@ -56,7 +92,7 @@ const Authorization: FC = (): ReactElement => {
 
   /**
    * A basic 'selected' switch.
-   * By clicking on Auth card's tabs, a user switch between Sign In and Sign Up variants.
+   * User switch between Sign In and Sign Up, and Resend Verification Code variants.
    */
   const handleAuthStep = (step: { identity: string }): void => {
     const updatedAuthStep = [...authSteps];
@@ -68,12 +104,21 @@ const Authorization: FC = (): ReactElement => {
     if (step.identity === signUp) {
       updatedAuthStep[0].selected = true;
       setAuthStep(updatedAuthStep);
+      dispatch(clearCredentials());
     } else if (step.identity === signIn) {
       updatedAuthStep[1].selected = true;
       setAuthStep(updatedAuthStep);
+      dispatch(clearCredentials());
+    } else if (step.identity === resendVerificationCode) {
+      updatedAuthStep[2].selected = true;
+      setAuthStep(updatedAuthStep);
+    } else if (step.identity === forgotPassword) {
+      updatedAuthStep[3].selected = true;
+      setAuthStep(updatedAuthStep);
+    } else if (step.identity === resetPassword) {
+      updatedAuthStep[4].selected = true;
+      setAuthStep(updatedAuthStep);
     }
-
-    dispatch(clearCredentials());
   };
 
   /**
@@ -88,6 +133,11 @@ const Authorization: FC = (): ReactElement => {
       signUpVerificationCode,
       signInEmail,
       signInPassword,
+      resendVerificationCodeEmail,
+      forgotPasswordEmail,
+      forgotPasswordVerificationCode,
+      forgotPasswordPassword,
+      forgotPasswordRepeatPassword,
     } = inputCategories;
     if (type === signUpEmail) {
       dispatch(updateEmail(value, signUpEmail));
@@ -96,11 +146,21 @@ const Authorization: FC = (): ReactElement => {
     } else if (type === signUpPassword) {
       dispatch(updatePassword(value, signUpPassword));
     } else if (type === signUpVerificationCode) {
-      dispatch(updateVerificationCode(value));
+      dispatch(updateVerificationCode(value, signUpVerificationCode));
     } else if (type === signInPassword) {
       dispatch(updatePassword(value, signInPassword));
     } else if (type === signUpRepeatPassword) {
-      dispatch(updateRepeatPassword(value));
+      dispatch(updateRepeatPassword(value, signUpRepeatPassword));
+    } else if (type === resendVerificationCodeEmail) {
+      dispatch(updateEmail(value, resendVerificationCodeEmail));
+    } else if (type === forgotPasswordEmail) {
+      dispatch(updateEmail(value, forgotPasswordEmail));
+    } else if (type === forgotPasswordVerificationCode) {
+      dispatch(updateVerificationCode(value, forgotPasswordVerificationCode));
+    } else if (type === forgotPasswordPassword) {
+      dispatch(updatePassword(value, forgotPasswordPassword));
+    } else if (type === forgotPasswordRepeatPassword) {
+      dispatch(updateRepeatPassword(value, forgotPasswordRepeatPassword));
     }
   };
 
@@ -112,12 +172,13 @@ const Authorization: FC = (): ReactElement => {
   };
 
   /**
-   * Depending on the 'type', we either trigger the 'signUp' or 'signIn' method.
+   * Depending on the 'type', we either trigger the 'signUp' or 'signIn' method,
+   * or trigger the verification code recovery.
    */
-  const handleSubmit = async (type: string): Promise<any> => {
-    dispatch(initializeAuth());
 
+  const handleSubmit = async (type: string): Promise<any> => {
     if (type === signUp) {
+      dispatch(initializeAuth());
       const validate = validatePassword();
 
       if (validate) {
@@ -139,6 +200,8 @@ const Authorization: FC = (): ReactElement => {
         dispatch(terminateAuth());
       }
     } else if (type === signIn) {
+      dispatch(initializeAuth());
+
       try {
         await Auth.signIn(signInState.email, signInState.password);
 
@@ -151,6 +214,45 @@ const Authorization: FC = (): ReactElement => {
           dispatch(terminateAuth());
         }
       }
+    } else if (type === resendVerificationCode) {
+      try {
+        const newUser = await Auth.resendSignUp(
+          resendVerificationCodeState.email
+        );
+        setNewUser(newUser);
+      } catch (e: unknown) {
+        if (e instanceof Error) {
+          toast(e.message);
+        }
+      }
+    } else if (type === forgotPassword) {
+      try {
+        await Auth.forgotPassword(forgotPasswordState.email);
+
+        handleAuthStep(authSteps[4]);
+        toast("The password recovery code has been sent to you email.");
+      } catch (e: unknown) {
+        if (e instanceof Error) {
+          toast(e.message);
+        }
+      }
+    } else if (type === resetPassword) {
+      try {
+        await Auth.forgotPasswordSubmit(
+          forgotPasswordState.email,
+          forgotPasswordState.verificationCode,
+          forgotPasswordState.password
+        );
+
+        handleAuthStep(authSteps[1]);
+        toast(
+          "Your password has been successfully updated. Don't forget it this time. 😄"
+        );
+      } catch (e: unknown) {
+        if (e instanceof Error) {
+          toast(e.message);
+        }
+      }
     }
   };
 
@@ -158,7 +260,7 @@ const Authorization: FC = (): ReactElement => {
    * Once a user has signed up, the email needs to be confirmed in order to continue.
    * At the same time, we sign in a user if verification's gone smooth.
    */
-  const handleConfirmationSubmit = async (): Promise<any> => {
+  const handleEmailConfirmation = async (): Promise<any> => {
     dispatch(initializeAuth());
 
     try {
@@ -175,10 +277,33 @@ const Authorization: FC = (): ReactElement => {
     }
   };
 
+  /**
+   * Otherwise, the verification code can be resent, but the user has to log in after verfication.
+   */
+  const handleEmailReconfirmation = async (): Promise<any> => {
+    try {
+      await Auth.confirmSignUp(
+        resendVerificationCodeState.email,
+        signUpState.verificationCode
+      );
+
+      setNewUser(null);
+      handleAuthStep(authSteps[1]);
+
+      toast("The email has been Confirmed.");
+      dispatch(clearCredentials());
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        toast(e.message);
+      }
+    }
+  };
+
   return (
     <Wrapper>
       {newUser === null ? (
         <AuthCard
+          actions={actions}
           authSteps={authSteps}
           selectedAuthStep={selectedAuthStep}
           inputCategories={inputCategories}
@@ -190,7 +315,11 @@ const Authorization: FC = (): ReactElement => {
         <AuthConfirmation
           inputCategories={inputCategories}
           onChange={handleChange}
-          onConfirmationSubmit={handleConfirmationSubmit}
+          onConfirmationSubmit={
+            signUpState.password.length !== 0
+              ? handleEmailConfirmation
+              : handleEmailReconfirmation
+          }
         />
       )}
     </Wrapper>

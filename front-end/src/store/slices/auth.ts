@@ -14,7 +14,19 @@ interface AuthState {
       email: string;
       password: string;
     };
+
+    resendVerificationCode: {
+      email: string;
+    };
+
+    forgotPassword: {
+      email: string;
+      verificationCode: string;
+      password: string;
+      repeatPassword: string;
+    };
   };
+
   loading: boolean;
 }
 
@@ -29,6 +41,17 @@ const defaultCredentials = {
   signIn: {
     email: "",
     password: "",
+  },
+
+  resendVerificationCode: {
+    email: "",
+  },
+
+  forgotPassword: {
+    email: "",
+    verificationCode: "",
+    password: "",
+    repeatPassword: "",
   },
 };
 
@@ -92,6 +115,26 @@ export const authSlice = createSlice({
     credentialsCleared: (auth) => {
       auth.credentials = defaultCredentials;
     },
+
+    resendVerificationCodeEmailUpdated: (auth, action) => {
+      auth.credentials.resendVerificationCode.email = action.payload;
+    },
+
+    forgotPasswordEmailUpdated: (auth, action) => {
+      auth.credentials.forgotPassword.email = action.payload;
+    },
+
+    forgotPasswordVerificationCodeUpdated: (auth, action) => {
+      auth.credentials.forgotPassword.verificationCode = action.payload;
+    },
+
+    forgotPasswordPasswordUpdated: (auth, action) => {
+      auth.credentials.forgotPassword.password = action.payload;
+    },
+
+    forgotPasswordRepeatPasswordUpdated: (auth, action) => {
+      auth.credentials.forgotPassword.repeatPassword = action.payload;
+    },
   },
 });
 
@@ -108,6 +151,11 @@ export const {
   singInEmailUpdated,
   singInPasswordUpdated,
   credentialsCleared,
+  resendVerificationCodeEmailUpdated,
+  forgotPasswordEmailUpdated,
+  forgotPasswordVerificationCodeUpdated,
+  forgotPasswordPasswordUpdated,
+  forgotPasswordRepeatPasswordUpdated,
 } = authSlice.actions;
 
 /**
@@ -134,30 +182,45 @@ export const logOut = () => (dispatch: Dispatch) => {
 };
 
 export const updateEmail =
-  (value: string, stage: string) => (dispatch: Dispatch) => {
-    if (stage === "signUpEmail") {
+  (value: string, type: string) => (dispatch: Dispatch) => {
+    if (type === "signUpEmail") {
       dispatch(singUpEmailUpdated(value));
-    } else if (stage === "signInEmail") {
+    } else if (type === "signInEmail") {
       dispatch(singInEmailUpdated(value));
+    } else if (type === "resendVerificationCodeEmail") {
+      dispatch(resendVerificationCodeEmailUpdated(value));
+    } else if (type === "forgotPasswordEmail") {
+      dispatch(forgotPasswordEmailUpdated(value));
     }
   };
 
 export const updatePassword =
-  (value: string, stage: string) => (dispatch: Dispatch) => {
-    if (stage === "signUpPassword") {
+  (value: string, type: string) => (dispatch: Dispatch) => {
+    if (type === "signUpPassword") {
       dispatch(signUpPasswordUpdated(value));
-    } else if (stage === "signInPassword") {
+    } else if (type === "signInPassword") {
       dispatch(singInPasswordUpdated(value));
+    } else if (type === "forgotPasswordPassword") {
+      dispatch(forgotPasswordPasswordUpdated(value));
     }
   };
 
-export const updateRepeatPassword = (value: string) => (dispatch: Dispatch) => {
-  dispatch(signUpRepeatPasswordUpdated(value));
-};
+export const updateRepeatPassword =
+  (value: string, type: string) => (dispatch: Dispatch) => {
+    if (type === "signUpRepeatPassword") {
+      dispatch(signUpRepeatPasswordUpdated(value));
+    } else if (type === "forgotPasswordRepeatPassword") {
+      dispatch(forgotPasswordRepeatPasswordUpdated(value));
+    }
+  };
 
 export const updateVerificationCode =
-  (value: string) => (dispatch: Dispatch) => {
-    dispatch(signUpVerificationCodeUpdated(value));
+  (value: string, type: string) => (dispatch: Dispatch) => {
+    if (type === "signUpVerificationCode") {
+      dispatch(signUpVerificationCodeUpdated(value));
+    } else if (type === "forgotPasswordVerificationCode") {
+      dispatch(forgotPasswordVerificationCodeUpdated(value));
+    }
   };
 
 export const submitCredentials = () => (dispatch: Dispatch) => {
